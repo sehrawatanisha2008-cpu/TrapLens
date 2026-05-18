@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TrapLens | Scam Simulation</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="logo">TrapLens</div>
+  <div>
+    <a href="index.html">Home</a>
+    <a href="detector.html">Scan URL</a>
+    <a href="scam-intelligence.html">Scam Cases</a>
+    <a href="simulation.html">Simulation</a>
+    <a href="learn.html">Learn</a>
+  </div>
+</nav>
+
+<section class="page-title">
+  <div class="badge">Interactive Scam Psychology Test</div>
+  <h1>Can you spot the scam under pressure?</h1>
+  <p>
+    This simulation checks not only your answer, but also how quickly you respond.
+    Scammers often use urgency to make people react before thinking.
+  </p>
+</section>
+
+<section class="quiz-card" id="quizBox">
+  <h3 id="questionTitle">Case 1</h3>
+
+  <p><strong>Time taken:</strong> <span id="timer">0.0</span> seconds</p>
+
+  <br>
+
+  <p id="questionText"></p>
+
+  <div class="quiz-options">
+    <button onclick="checkAnswer('safe')">Looks Safe</button>
+    <button onclick="checkAnswer('suspicious')">Looks Suspicious</button>
+  </div>
+
+  <br>
+
+  <p id="feedbackText"></p>
+
+  <br>
+
+  <button class="btn" onclick="nextQuestion()" id="nextBtn" style="display:none;">
+    Next Case
+  </button>
+</section>
+
+<section class="result-card" id="finalReport" style="display:none;">
+  <div class="badge">Final Behavior Report</div>
+
+  <div class="result-top">
+    <div>
+      <h1>Simulation Complete</h1>
+      <p>Your scam awareness behavior has been analyzed.</p>
+      <div class="risk-stamp" id="finalLabel">ANALYZING</div>
+    </div>
+
+    <div class="score-badge">
+      <div>
+        <div class="score" id="finalScore">0/100</div>
+        <small>Awareness Score</small>
+      </div>
+    </div>
+  </div>
+
+  <br><br>
+
+  <h2>Your Response Pattern</h2>
+  <div class="flags-grid">
+    <div class="flag" id="correctResult"></div>
+    <div class="flag" id="speedResult"></div>
+    <div class="flag" id="psychResult"></div>
+    <div class="flag" id="adviceResult"></div>
+  </div>
+
+  <div class="safe-tip">
+    <strong>TrapLens Insight:</strong><br><br>
+    Scam prevention is not only about knowing facts. It is also about slowing down,
+    checking details, and not reacting emotionally to urgency, fear, or fake rewards.
+  </div>
+
+  <br>
+
+  <button class="btn" onclick="restartSimulation()">Try Again</button>
+</section>
+
+<script>
+  const cases = [
+    {
+      text: "You receive a message: 'Congratulations! You won a free iPhone. Click this link and pay ₹99 delivery fee now.'",
+      answer: "suspicious",
+      feedback: "Red flags: fake reward, urgency, and small payment trap."
+    },
+    {
+      text: "A website asks you to verify your bank account by entering your card PIN and OTP.",
+      answer: "suspicious",
+      feedback: "Red flags: no real platform should ask for OTP, UPI PIN, or card PIN."
+    },
+    {
+      text: "A known official website uses HTTPS, has clear contact details, and does not ask for sensitive information unnecessarily.",
+      answer: "safe",
+      feedback: "This looks safer because it has trust signals, but users should still verify the domain."
+    },
+    {
+      text: "An internship page promises ₹50,000/month for beginners but asks for a registration fee first.",
+      answer: "suspicious",
+      feedback: "Red flags: unrealistic salary, fee demand, and fake opportunity pressure."
+    },
+    {
+      text: "A message says: 'Your account will be blocked in 10 minutes. Login now to verify your identity.'",
+      answer: "suspicious",
+      feedback: "Red flags: fear, urgency, and forced login behavior."
+    }
+  ];
+
+  let current = 0;
+  let correct = 0;
+  let totalTime = 0;
+  let fastResponses = 0;
+  let startTime;
+  let timerInterval;
+  let answered = false;
+
+  function startTimer() {
+    startTime = Date.now();
+
+    clearInterval(timerInterval);
+
+    timerInterval = setInterval(() => {
+      const seconds = ((Date.now() - startTime) / 1000).toFixed(1);
+      document.getElementById("timer").innerText = seconds;
+    }, 100);
+  }
+
+  function loadQuestion() {
+    answered = false;
+
+    document.getElementById("questionTitle").innerText = "Case " + (current + 1);
+    document.getElementById("questionText").innerText = cases[current].text;
+    document.getElementById("feedbackText").innerText = "";
+    document.getElementById("nextBtn").style.display = "none";
+    document.getElementById("timer").innerText = "0.0";
+
+    startTimer();
+  }
+
+  function checkAnswer(choice) {
+    if (answered) return;
+
+    answered = true;
+    clearInterval(timerInterval);
+
+    const timeTaken = (Date.now() - startTime) / 1000;
+    totalTime += timeTaken;
+
+    if (timeTaken <= 3) {
+      fastResponses++;
+    }
+
+    const feedback = document.getElementById("feedbackText");
+
+    if (choice === cases[current].answer) {
+      correct++;
+      feedback.innerText =
+        "✅ Correct. " + cases[current].feedback +
+        " Response time: " + timeTaken.toFixed(1) + " seconds.";
+    } else {
+      feedback.innerText =
+        "❌ Not quite. " + cases[current].feedback +
+        " Response time: " + timeTaken.toFixed(1) + " seconds.";
+    }
+
+    document.getElementById("nextBtn").style.display = "inline-block";
+  }
+
+  function nextQuestion() {
+    current++;
+
+    if (current >= cases.length) {
+      showFinalReport();
+    } else {
+      loadQuestion();
+    }
+  }
+
+  function showFinalReport() {
+    document.getElementById("quizBox").style.display = "none";
+    document.getElementById("finalReport").style.display = "block";
+
+    const accuracy = Math.round((correct / cases.length) * 100);
+    const averageTime = totalTime / cases.length;
+
+    let finalScore = accuracy;
+
+    if (averageTime < 2.5) {
+      finalScore -= 10;
+    } else if (averageTime >= 3 && averageTime <= 8) {
+      finalScore += 5;
+    }
+
+    if (finalScore > 100) finalScore = 100;
+    if (finalScore < 0) finalScore = 0;
+
+    let label = "";
+    let psychText = "";
+    let advice = "";
+
+    if (finalScore >= 80) {
+      label = "STRONG AWARENESS";
+      psychText = "You showed good judgment and did not rely only on fast reactions.";
+      advice = "Keep verifying URLs, payment requests, and urgent messages before trusting them.";
+    } else if (finalScore >= 55) {
+      label = "MODERATE AWARENESS";
+      psychText = "You spotted some scams, but your response pattern shows room for more careful checking.";
+      advice = "Slow down before clicking. Scammers often use urgency to reduce critical thinking.";
+    } else {
+      label = "HIGH RISK BEHAVIOR";
+      psychText = "Your choices or response speed suggest you may react quickly to scam pressure.";
+      advice = "Pause before clicking links, especially when money, OTPs, rewards, or account threats are involved.";
+    }
+
+    document.getElementById("finalScore").innerText = finalScore + "/100";
+    document.getElementById("finalLabel").innerText = label;
+
+    document.getElementById("correctResult").innerText =
+      "Correct Answers: " + correct + " out of " + cases.length;
+
+    document.getElementById("speedResult").innerText =
+      "Average Response Time: " + averageTime.toFixed(1) + " seconds";
+
+    document.getElementById("psychResult").innerText =
+      "Psychology Insight: " + psychText;
+
+    document.getElementById("adviceResult").innerText =
+      "Advice: " + advice;
+  }
+
+  function restartSimulation() {
+    current = 0;
+    correct = 0;
+    totalTime = 0;
+    fastResponses = 0;
+    answered = false;
+
+    document.getElementById("finalReport").style.display = "none";
+    document.getElementById("quizBox").style.display = "block";
+
+    loadQuestion();
+  }
+
+  loadQuestion();
+</script>
+
+</body>
+</html>

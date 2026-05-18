@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TrapLens | URL Scanner</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="logo">TrapLens</div>
+    <div>
+      <a href="index.html">Home</a>
+      <a href="detector.html">Scan URL</a>
+      <a href="scam-intelligence.html">Scam Cases</a>
+      <a href="simulation.html">Simulation</a>
+      <a href="learn.html">Learn</a>
+    </div>
+  </nav>
+
+  <section class="scan-box fade-in">
+    <div class="badge">Case Investigation Scanner</div>
+
+    <h1>Drop the link. Open the case.</h1>
+
+    <p>
+      Paste a suspicious URL and TrapLens will investigate visible warning signs,
+      scam keywords, unsafe patterns, and trust signals.
+    </p>
+
+    <div class="input-group">
+      <input type="text" id="urlInput" placeholder="Paste suspicious URL here..." />
+      <button class="btn" onclick="scanURL()">Start Investigation</button>
+    </div>
+
+    <div class="clue-row">
+      <div class="clue-pill">HTTPS Check</div>
+      <div class="clue-pill">Scam Keywords</div>
+      <div class="clue-pill">Fake Urgency</div>
+      <div class="clue-pill">Short Link Risk</div>
+    </div>
+
+    <div class="scanner-strip">
+      <span></span>
+    </div>
+
+    <div class="warning-tape">
+      THINK BEFORE YOU CLICK
+    </div>
+  </section>
+
+  <script>
+    function scanURL() {
+      const url = document.getElementById("urlInput").value.trim();
+
+      if (url === "") {
+        alert("Please enter a website URL first.");
+        return;
+      }
+
+      localStorage.setItem("scannedURL", url);
+
+      const button = document.querySelector(".btn");
+      button.innerText = "Scanning Clues...";
+      button.disabled = true;
+
+      setTimeout(() => {
+        button.innerText = "Building Case Report...";
+      }, 800);
+
+      setTimeout(() => {
+        window.location.href = "result.html";
+      }, 1600);
+    }
+  </script>
+
+</body>
+</html>

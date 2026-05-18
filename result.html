@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TrapLens | Investigation Report</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="logo">TrapLens</div>
+    <div>
+      <a href="index.html">Home</a>
+      <a href="detector.html">Scan Again</a>
+      <a href="scam-intelligence.html">Scam Cases</a>
+      <a href="simulation.html">Simulation</a>
+      <a href="learn.html">Learn</a>
+    </div>
+  </nav>
+
+  <section class="result-card fade-in">
+
+    <div class="badge">Official Case Report</div>
+
+    <div class="result-top">
+      <div>
+        <h1>Investigation Complete</h1>
+        <br>
+        <p><strong>Scanned URL:</strong> <span id="urlText"></span></p>
+        <div class="risk-stamp" id="riskLevel">ANALYZING</div>
+        <div class="case-status" id="caseStatus">Case Opened</div>
+      </div>
+
+      <div class="score-badge">
+        <div>
+          <div class="score" id="scoreText">0/100</div>
+          <small>Trust Score</small>
+        </div>
+      </div>
+    </div>
+
+    <br><br>
+
+    <h2>Evidence Found</h2>
+    <div class="flags-grid" id="flagsContainer"></div>
+
+    <div class="safe-tip">
+      <strong>Investigator Note:</strong><br><br>
+      TrapLens checks visible scam indicators only. Always verify the real source before entering passwords, OTPs, banking details, or payment information.
+    </div>
+
+  </section>
+
+  <section class="features fade-in">
+    <div class="card">
+      <h3>Scam Pattern</h3>
+      <p id="scamPattern">Checking website behavior...</p>
+    </div>
+
+    <div class="card">
+      <h3>Possible Risk Type</h3>
+      <p id="riskType">Analyzing...</p>
+    </div>
+
+    <div class="card">
+      <h3>Final Summary</h3>
+      <p id="summaryText">Generating summary...</p>
+    </div>
+  </section>
+
+  <script>
+    const url = localStorage.getItem("scannedURL") || "No URL found";
+    document.getElementById("urlText").innerText = url;
+
+    let score = 100;
+    let flags = [];
+
+    const lowerURL = url.toLowerCase();
+
+    const suspiciousWords = [
+      "free", "bonus", "claim", "verify", "urgent", "offer", "gift",
+      "winner", "lottery", "reward", "bank", "payment", "login",
+      "secure-update", "otp", "crypto", "limited", "prize", "refund"
+    ];
+
+    if (!lowerURL.startsWith("https://")) {
+      score -= 25;
+      flags.push("No HTTPS protection found.");
+    }
+
+    suspiciousWords.forEach(word => {
+      if (lowerURL.includes(word)) {
+        score -= 8;
+        flags.push("Suspicious keyword found: " + word);
+      }
+    });
+
+    if (url.length > 70) {
+      score -= 10;
+      flags.push("URL is unusually long and may be confusing.");
+    }
+
+    const numberCount = (url.match(/\d/g) || []).length;
+    if (numberCount > 5) {
+      score -= 10;
+      flags.push("Too many numbers in the URL.");
+    }
+
+    if (url.includes("@")) {
+      score -= 20;
+      flags.push("@ symbol detected. It may hide the real destination.");
+    }
+
+    if (
+      lowerURL.includes("bit.ly") ||
+      lowerURL.includes("tinyurl") ||
+      lowerURL.includes("shorturl") ||
+      lowerURL.includes("goo.gl")
+    ) {
+      score -= 18;
+      flags.push("Shortened link detected. Destination may be hidden.");
+    }
+
+    if (lowerURL.includes("login") && lowerURL.includes("verify")) {
+      score -= 12;
+      flags.push("Login and verification words used together.");
+    }
+
+    if (score < 0) score = 0;
+
+    document.getElementById("scoreText").innerText = score + "/100";
+
+    let riskLabel = "";
+    let riskType = "";
+    let summary = "";
+    let pattern = "";
+
+    if (score >= 75) {
+      riskLabel = "LOW RISK";
+      riskType = "No strong visible scam pattern found.";
+      summary = "TrapLens found minimal visible red flags. Still verify the website before sharing sensitive information.";
+      pattern = "The link does not strongly match common scam patterns.";
+    } else if (score >= 45) {
+      riskLabel = "SUSPICIOUS";
+      riskType = "Possible phishing, fake offer, or deceptive platform.";
+      summary = "TrapLens found multiple warning signs. Avoid sharing private details unless the source is verified.";
+      pattern = "This link may be using trust manipulation, urgency, or unclear structure.";
+    } else {
+      riskLabel = "HIGH RISK";
+      riskType = "Likely scam or phishing attempt.";
+      summary = "TrapLens found strong scam-like indicators. Do not enter passwords, OTPs, or payment details.";
+      pattern = "This link strongly matches common scam patterns such as fake rewards, verification traps, or unsafe link behavior.";
+    }
+
+    document.getElementById("riskLevel").innerText = riskLabel;
+    document.getElementById("riskType").innerText = riskType;
+    document.getElementById("summaryText").innerText = summary;
+    document.getElementById("scamPattern").innerText = pattern;
+    document.getElementById("caseStatus").innerText = "Case Marked: " + riskLabel;
+
+    const flagsContainer = document.getElementById("flagsContainer");
+
+    if (flags.length === 0) {
+      flagsContainer.innerHTML = `<div class="flag">No major visible red flags detected.</div>`;
+    } else {
+      flags.forEach(flag => {
+        flagsContainer.innerHTML += `<div class="flag">${flag}</div>`;
+      });
+    }
+  </script>
+
+</body>
+</html>
